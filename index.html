@@ -3,28 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh Sách Bài Học Lớp 4</title>
+    <title>Hệ Thống Bài Học Lớp 4</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; }
-        h1 { color: #333; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin: 10px 0; }
-        a { display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; }
-        a:hover { background-color: #0056b3; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 40px 20px; 
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%); 
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.08);
+            text-align: center;
+        }
+        .logo {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        h1 { 
+            color: #1e3a8a; 
+            margin: 0 0 10px 0; 
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        p { 
+            color: #64748b; 
+            margin: 0 0 35px 0; 
+            font-size: 16px;
+        }
+        ul { 
+            list-style-type: none; 
+            padding: 0; 
+            margin: 0; 
+        }
+        li { 
+            margin: 18px 0; 
+        }
+        .btn { 
+            display: block; 
+            padding: 16px 20px; 
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 12px; 
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
+        }
+        .btn:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(29, 78, 216, 0.3);
+            filter: brightness(1.1);
+        }
+        .btn-new {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2);
+        }
+        .btn-new:hover {
+            box-shadow: 0 8px 20px rgba(4, 120, 87, 0.3);
+        }
     </style>
 </head>
 <body>
 
-    <h1>Danh Sách Bài Học Lớp 4</h1>
-    <p>Chọn bài học bạn muốn xem bên dưới:</p>
-    
-     <ul>
-        <!-- Bấm vào đây sẽ mở file unit1.html -->
-        <li><a href="unit1.html">Học Unit 1 (Bài cũ)</a></li>
+    <div class="container">
+        <div class="logo">📚</div>
+        <h1>BÀI HỌC TIẾNG ANH LỚP 4</h1>
+        <p>Vui lòng chọn bài học bạn muốn tham gia bên dưới</p>
         
-        <!-- Bấm vào đây sẽ mở file unit1-new.html -->
-<li><a href="unit1new.html">Học Unit 1 - Bản mới (Bài mới add)</a></li>
-    </ul>
+        <ul>
+            <!-- UNIT 1 BẢN CỦ -->
+            <li><a class="btn" href="unit1.html">🎯 Học Unit 1 (Bản gốc)</a></li>
+            
+            <!-- UNIT 1 BẢN MỚI -->
+            <li><a class="btn btn-new" href="unit1new.html">🔥 Học Unit 1 (Chiến Dịch Sinh Tồn)</a></li>
+        </ul>
+    </div>
 
 </body>
 </html>
