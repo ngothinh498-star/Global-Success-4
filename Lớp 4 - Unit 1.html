@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chiến Dịch Sinh Tồn: Unit 1 My Friends (Free Fire Edition)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            tactical: ['Rajdhani', 'sans-serif'],
+            sans: ['Quicksand', 'sans-serif'],
+          },
+          colors: {
+            ff: {
+              orange: '#FF7700',
+              gold: '#FFAA00',
+              fire: '#FF3D00',
+              yellow: '#FFD700',
+              cyan: '#00F0FF',
+              dark: '#0B0E14',
+              card: '#141824',
+              surface: '#1E2333',
+              border: '#2C354D'
+            }
+          },
+          boxShadow: {
+            'neon-orange': '0 0 20px rgba(255, 119, 0, 0.45)',
+            'neon-cyan': '0 0 20px rgba(0, 240, 255, 0.4)',
+            'neon-gold': '0 0 25px rgba(255, 215, 0, 0.5)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #07090E;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(255, 119, 0, 0.15) 0%, transparent 60%),
+        linear-gradient(rgba(20, 24, 36, 0.7) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 24, 36, 0.7) 1px, transparent 1px);
+      background-size: 100% 100%, 36px 36px, 36px 36px;
+      color: #E2E8F0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 100vh;
+    }
+    .clip-tactical {
+      clip-path: polygon(14px 0%, 100% 0%, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0% 100%, 0% 14px);
+    }
+    .clip-tag {
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+    }
+    .screen-shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+      40%, 60% { transform: translate3d(5px, 0, 0); }
+    }
+    .hit-flash {
+      animation: hitFlash 0.3s ease-out;
+    }
+    @keyframes hitFlash {
+      0% { box-shadow: inset 0 0 80px rgba(255, 61, 0, 0.8); }
+      100% { box-shadow: inset 0 0 0 transparent; }
+    }
+    .booyah-glow {
+      text-shadow: 0 0 15px #FF7700, 0 0 30px #FFAA00, 0 0 45px #FF3D00;
+    }
+    .scanline {
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 240, 255, 0.05) 50%, rgba(0, 240, 255, 0.05));
+      background-size: 100% 4px;
+    }
+  </style>
+</head>
+<body id="game-body" class="p-2 sm:p-4 flex flex-col items-center justify-start min-h-screen">
+  
+  <canvas id="fireworks-canvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
+
+  <!-- Top Tactical HUD -->
+  <header class="w-full max-w-4xl bg-ff-card/90 backdrop-blur border-2 border-ff-border rounded-xl p-3 sm:p-4 mb-4 shadow-xl relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-ff-orange to-ff-fire"></div>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <!-- Player Profile & Call-sign -->
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-lg bg-ff-surface border-2 border-ff-orange flex items-center justify-center p-1 relative shadow-neon-orange">
+          <!-- Chibi Special Forces Avatar -->
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="45" fill="#1E2333"/>
+            <!-- Helmet level 3 -->
+            <path d="M22 45 C 22 25, 78 25, 78 45 L 82 70 L 18 70 Z" fill="#2C354D"/>
+            <rect x="25" y="48" width="50" height="12" rx="4" fill="#00F0FF" opacity="0.85"/>
+            <path d="M18 65 L 82 65 L 82 74 C 82 82, 18 82, 18 74 Z" fill="#FF7700"/>
+            <circle cx="28" cy="70" r="3" fill="#FFF"/>
+            <circle cx="72" cy="70" r="3" fill="#FFF"/>
+          </svg>
+          <span class="absolute -bottom-1 -right-1 text-[10px] font-tactical font-bold bg-ff-fire px-1 rounded text-white">LV.4</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-tactical font-black text-lg text-white tracking-wider">CHIẾN BINH 4A</span>
+            <span id="rank-badge-pill" class="text-xs font-tactical font-bold px-2 py-0.5 rounded bg-amber-500/20 text-ff-yellow border border-amber-500/40">
+              RANK: VÀNG III
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 font-sans">Chiến Dịch: <strong class="text-ff-orange font-tactical">UNIT 1 - MY FRIENDS</strong></p>
+        </div>
+      </div>
+
+      <!-- Health Bar (HP) & Sound Toggle -->
+      <div class="flex items-center gap-4">
+        <div class="flex flex-col items-end min-w-[140px] sm:min-w-[180px]">
+          <div class="flex justify-between w-full text-xs font-tactical font-bold mb-1">
+            <span class="text-ff-cyan flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M10 2l6 16H4z"/></svg> GIÁP SINH TỒN
+            </span>
+            <span id="hp-text" class="text-white">200 / 200 HP</span>
+          </div>
+          <div class="w-full bg-slate-800 h-3.5 rounded-sm p-0.5 border border-slate-700 overflow-hidden">
+            <div id="hp-bar" class="h-full bg-gradient-to-r from-ff-orange via-ff-yellow to-emerald-400 transition-all duration-300" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <button id="toggle-sound-btn" class="p-2.5 rounded-lg bg-ff-surface border border-ff-border text-slate-300 hover:text-ff-yellow hover:border-ff-orange transition" title="Bật/Tắt Âm Thanh">
+          <svg id="sound-on-svg" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+          </svg>
+          <svg id="sound-off-svg" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full max-w-4xl flex-1 flex flex-col justify-center">
+    
+    <!-- Screen 1: Welcome & Mission Briefing -->
+    <div id="screen-welcome" class="bg-ff-card border-2 border-ff-border rounded-2xl p-6 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col items-center text-center">
+      <div class="absolute -top-24 -right-24 w-60 h-60 bg-ff-orange/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Free Fire Chibi Mascot: Captain Kelly -->
+      <div class="w-36 h-36 sm:w-44 sm:h-44 mb-4 relative drop-shadow-2xl">
+        <svg viewBox="0 0 200 200" class="w-full h-full">
+          <!-- Airdrop crate background -->
+          <rect x="25" y="110" width="150" height="75" rx="8" fill="#B71515" stroke="#FF5500" stroke-width="3"/>
+          <rect x="40" y="110" width="20" height="75" fill="#1A1A1A"/>
+          <rect x="140" y="110" width="20" height="75" fill="#1A1A1A"/>
+          <path d="M10 110 L 190 110" stroke="#FFD700" stroke-width="5"/>
+          <!-- Chibi Kelly character sitting on crate -->
+          <circle cx="100" cy="70" r="42" fill="#FFEAA7"/>
+          <!-- Hair yellow sporty -->
+          <path d="M55 70 C 55 25, 145 25, 145 70 C 145 75, 130 95, 100 85 C 70 95, 55 75, 55 70 Z" fill="#FFA502"/>
+          <polygon points="100,30 90,50 110,50" fill="#FFEAA7"/>
+          <!-- Headband with tactical star -->
+          <path d="M58 50 Q 100 40 142 50 L 140 58 Q 100 48 60 58 Z" fill="#2F3542"/>
+          <circle cx="100" cy="51" r="4" fill="#FFD700"/>
+          <!-- Big anime eyes -->
+          <circle cx="82" cy="70" r="7" fill="#2F3542"/>
+          <circle cx="118" cy="70" r="7" fill="#2F3542"/>
+          <circle cx="85" cy="68" r="2.5" fill="#FFF"/>
+          <circle cx="121" cy="68" r="2.5" fill="#FFF"/>
+          <path d="M92 82 Q 100 90 108 82" stroke="#FF4757" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Tactical Jacket Yellow & Black -->
+          <path d="M68 110 L 132 110 L 125 150 L 75 150 Z" fill="#FFD700"/>
+          <polygon points="100,110 90,130 110,130" fill="#2F3542"/>
+          <!-- Red flare smoke -->
+          <circle cx="165" cy="90" r="14" fill="#FF3D00" opacity="0.6"/>
+          <circle cx="175" cy="70" r="20" fill="#FF7700" opacity="0.4"/>
+        </svg>
+      </div>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-ff-orange/20 border border-ff-orange text-ff-yellow font-tactical font-bold text-sm tracking-wider uppercase mb-3">
+        🔥 CHIẾN DỊCH BẢN ĐỒ SINH TỒN TIẾNG ANH 4
+      </div>
+
+      <h1 class="font-tactical font-black text-3xl sm:text-5xl text-white tracking-wide uppercase mb-3">
+        ĐẠT <span class="text-transparent bg-clip-text bg-gradient-to-r from-ff-yellow via-ff-orange to-ff-fire booyah-glow">BOOYAH!</span> VỚI CÁC BẠN BÈ
+      </h1>
+
+      <p class="max-w-xl text-slate-300 text-sm sm:text-base mb-6 font-sans">
+        Chào mừng đặc nhiệm nhí! Vòng bo kiến thức <strong>Unit 1: My Friends</strong> đang thu hẹp. Vượt qua 20 thử thách chiến thuật về quốc gia, bạn bè thế giới để leo Rank <strong>Thách Đấu</strong> ngay!
+      </p>
+
+      <!-- 6 Combat Features / Modes Info -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 w-full max-w-2xl mb-8 text-left text-xs font-tactical">
+        <div class="p-2.5 rounded-lg bg-ff-surface border border-ff-border flex items-center gap-2">
+          <span class="text-xl">🎯</span>
+          <div><p class="font-bold text-white text-sm">TRẮC NGHIỆM CỜ</p><p class="text-slate-400">Xạ thủ nhận diện</p></div>
+        </div>
+        <div class="p-2.5 rounded-lg bg-ff-surface border border-ff-border flex items-center gap-2">
+          <span class="text-xl">📡</span>
+          <div><p class="font-bold text-white text-sm">RADAR TRUE / FALSE</p><p class="text-slate-400">Quét thông tin thẻ</p></div>
+        </div>
+        <div class="p-2.5 rounded-lg bg-ff-surface border border-ff-border flex items-center gap-2">
+          <span class="text-xl">🧩</span>
+          <div><p class="font-bold text-white text-sm">GHÉP MẬT MÃ TỪ</p><p class="text-slate-400">Xếp câu chuẩn xác</p></div>
+        </div>
+        <div class="p-2.5 rounded-lg bg-ff-surface border border-ff-border flex items-center gap-2">
+          <span class="text-xl">💣</span>
+          <div><p class="font-bold text-white text-sm">GỠ MÌN LỖI SAI</p><p class="text-slate-400">Bắt sâu ngữ pháp</p></div>
+        </div>
+        <div class="p-2.5 rounded-lg bg-ff-surface border border-ff-border flex items-center gap-2">
+          <span class="text-xl">📻</span>
+          <div><p class="font-bold text-white text-sm">BỘ ĐÀM LIÊN LẠC</p><p class="text-slate-400">Điền từ đối thoại</p></div>
+        </div>
+        <div class="p-2.5 rounded-lg bg-ff-surface border border-ff-border flex items-center gap-2">
+          <span class="text-xl">⚡</span>
+          <div><p class="font-bold text-white text-sm">NỐI CẶP TÁC CHIẾN</p><p class="text-slate-400">Bản đồ Đông Nam Á</p></div>
+        </div>
+      </div>
+
+      <button id="btn-start-game" class="clip-tactical px-10 py-4 bg-gradient-to-r from-ff-orange via-ff-fire to-ff-gold hover:brightness-110 active:scale-95 text-white font-tactical font-black text-2xl tracking-widest shadow-neon-orange transition flex items-center gap-3">
+        <span>VÀO TRẬN NGAY!</span>
+        <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Screen 2: Battle Field (Interactive Question HUD) -->
+    <div id="screen-game" class="hidden flex-col gap-4">
+      
+      <!-- Safe Zone & Battle Metrics Bar -->
+      <div class="bg-ff-card border border-ff-border rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+        <!-- Vòng bo Safe zone counter -->
+        <div class="flex-1 min-w-[200px]">
+          <div class="flex justify-between items-center mb-1 text-xs font-tactical font-bold">
+            <span class="text-slate-300 flex items-center gap-1.5">
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+              VÒNG BO KIẾN THỨC: <span id="zone-counter" class="text-ff-yellow">01 / 20</span>
+            </span>
+            <span id="zone-percent" class="text-ff-cyan">5% TIẾN ĐỘ</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2.5 rounded-sm overflow-hidden p-0.5 border border-slate-700">
+            <div id="zone-progress" class="h-full bg-gradient-to-r from-ff-cyan to-ff-orange transition-all duration-300" style="width: 5%"></div>
+          </div>
+        </div>
+
+        <!-- Kills & Combo Score Display -->
+        <div class="flex items-center gap-3 font-tactical">
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded bg-ff-surface border border-ff-border text-white text-sm font-bold">
+            <span class="text-ff-orange">🔥 ĐIỂM:</span>
+            <span id="score-val" class="text-ff-yellow font-black text-base">0</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded bg-ff-surface border border-ff-border text-white text-sm font-bold">
+            <span class="text-ff-fire">💀 KILLS:</span>
+            <span id="kills-val" class="text-white font-black text-base">0</span>
+          </div>
+          <div id="combo-pill" class="hidden flex items-center gap-1 px-3 py-1 rounded bg-ff-fire text-white text-xs font-black animate-bounce shadow-neon-orange">
+            BOOYAH COMBO x2
+          </div>
+        </div>
+      </div>
+
+      <!-- Tactical Mission Question Board -->
+      <div id="combat-card" class="bg-ff-card border-2 border-ff-border rounded-2xl p-5 sm:p-7 shadow-2xl relative flex flex-col scanline">
+        
+        <!-- Category & Mode Badge -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span id="mission-type-tag" class="clip-tag px-3 py-1 bg-ff-orange text-black font-tactical font-extrabold text-xs tracking-wider uppercase">
+              XẠ THỦ QUỐC KỲ
+            </span>
+            <span id="unit-tag" class="text-xs text-slate-400 font-tactical tracking-wider">GLOBAL SUCCESS 4 • UNIT 1</span>
+          </div>
+          <span id="threat-level" class="text-xs font-tactical font-bold text-ff-cyan bg-ff-cyan/10 px-2 py-0.5 rounded border border-ff-cyan/30">
+            THỬ THÁCH #01
+          </span>
+        </div>
+
+        <!-- Question Prompt Text -->
+        <h2 id="combat-question-text" class="font-sans font-bold text-lg sm:text-2xl text-white mb-4 leading-relaxed">
+          Đang nạp dữ liệu nhiệm vụ...
+        </h2>
+
+        <!-- Visual Stage Area (SVG Flags, Hologram ID, Chibi Comrades) -->
+        <div id="combat-visual" class="w-full min-h-[160px] max-h-[220px] bg-ff-surface/80 rounded-xl border-2 border-dashed border-slate-700 flex items-center justify-center p-3 mb-5 overflow-hidden">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Answer Interaction Hub -->
+        <div id="combat-answers" class="w-full mb-4">
+          <!-- Dynamically generated according to question category -->
+        </div>
+
+        <!-- Captain Kelly Comms / Tactical Feedback Briefing -->
+        <div id="tactical-comms" class="hidden rounded-xl p-4 border transition-all mb-4 bg-ff-surface/90">
+          <div class="flex items-start gap-3">
+            <div id="kelly-avatar-slot" class="w-12 h-12 flex-shrink-0">
+              <!-- Chibi Kelly Reaction SVG -->
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span id="comms-title" class="font-tactical font-black text-lg tracking-wider">BẮN TRÚNG MỤC TIÊU!</span>
+              </div>
+              <p id="comms-explanation" class="text-sm text-slate-300 font-sans leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Fire Button -->
+        <div class="flex justify-end items-center gap-3 pt-2">
+          <button id="btn-fire-action" class="clip-tactical w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-ff-orange to-ff-fire hover:brightness-110 active:scale-95 text-white font-tactical font-black text-xl tracking-wider shadow-neon-orange transition disabled:opacity-40 disabled:cursor-not-allowed">
+            KHAI HOẢ / KIỂM TRA
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: BOOYAH! Victory & Mission Debriefing -->
+    <div id="screen-booyah" class="hidden bg-ff-card border-2 border-ff-border rounded-2xl p-6 sm:p-10 shadow-2xl relative flex flex-col items-center text-center">
+      
+      <!-- Booyah Banner Emblem SVG -->
+      <div class="w-36 h-36 sm:w-48 sm:h-48 mb-2">
+        <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-2xl">
+          <polygon points="100,10 130,70 195,75 145,120 160,185 100,150 40,185 55,120 5,75 70,70" fill="#FFD700" stroke="#FF7700" stroke-width="4"/>
+          <!-- Inner Fire Badge -->
+          <circle cx="100" cy="100" r="45" fill="#FF3D00"/>
+          <!-- Wings -->
+          <path d="M40 100 C 40 60, 10 70, 10 110 C 25 105, 35 115, 45 105 Z" fill="#FFA502"/>
+          <path d="M160 100 C 160 60, 190 70, 190 110 C 175 105, 165 115, 155 105 Z" fill="#FFA502"/>
+          <!-- Skull / Wings crown -->
+          <polygon points="100,75 90,95 110,95" fill="#FFF"/>
+          <circle cx="92" cy="102" r="5" fill="#FFF"/><circle cx="108" cy="102" r="5" fill="#FFF"/>
+          <path d="M88 120 Q 100 128 112 120" stroke="#FFF" stroke-width="3" fill="none"/>
+        </svg>
+      </div>
+
+      <h1 class="font-tactical font-black text-5xl sm:text-7xl text-ff-yellow booyah-glow tracking-widest uppercase mb-1">
+        BOOYAH!
+      </h1>
+      <p class="font-tactical font-extrabold text-lg sm:text-xl text-ff-cyan tracking-wider uppercase mb-2">
+        CHIẾN DỊCH HOÀN THÀNH XUẤT SẮC
+      </p>
+      <p id="debrief-quote" class="text-slate-300 font-sans text-sm sm:text-base max-w-lg mb-6">
+        Đại úy Kelly: "Kỹ năng phản xạ và vốn từ vựng của bạn quá đỉnh cao! Toàn bộ 20 câu hỏi Unit 1 đã được giải quyết gọn gàng!"
+      </p>
+
+      <!-- Combat Statistics Dashboard -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-xl mb-8 font-tactical">
+        <div class="p-3 rounded-xl bg-ff-surface border border-ff-border">
+          <p class="text-xs text-slate-400 font-bold">TỔNG ĐIỂM EXP</p>
+          <p id="final-exp" class="font-black text-3xl text-ff-yellow">0</p>
+        </div>
+        <div class="p-3 rounded-xl bg-ff-surface border border-ff-border">
+          <p class="text-xs text-slate-400 font-bold">KILLS / ĐÚNG</p>
+          <p id="final-kills" class="font-black text-3xl text-emerald-400">0 / 20</p>
+        </div>
+        <div class="p-3 rounded-xl bg-ff-surface border border-ff-border">
+          <p class="text-xs text-slate-400 font-bold">CHUỖI COMBO</p>
+          <p id="final-combo" class="font-black text-3xl text-ff-fire">x0</p>
+        </div>
+        <div class="p-3 rounded-xl bg-ff-surface border border-ff-border">
+          <p class="text-xs text-slate-400 font-bold">RANK TỐI THƯỢNG</p>
+          <p id="final-rank-name" class="font-black text-2xl text-ff-cyan">THÁCH ĐẤU</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 w-full max-w-md font-tactical">
+        <button id="btn-toggle-debrief" class="clip-tactical flex-1 py-3 px-6 bg-ff-surface border-2 border-ff-border hover:border-ff-cyan text-white font-bold text-lg tracking-wider transition">
+          XEM BẢN CHI TIẾT 20 CÂU
+        </button>
+        <button id="btn-replay-mission" class="clip-tactical flex-1 py-3 px-6 bg-gradient-to-r from-ff-orange to-ff-fire hover:brightness-110 text-white font-black text-xl tracking-wider shadow-neon-orange transition">
+          TÁI ĐẤU TRẬN MỚI 🚀
+        </button>
+      </div>
+
+      <!-- Full 20 Questions Review Section -->
+      <div id="full-debrief-list" class="hidden w-full max-w-3xl mt-8 pt-6 border-t border-slate-700 text-left font-sans">
+        <h3 class="font-tactical font-black text-2xl text-ff-yellow mb-4 flex items-center gap-2">
+          <span>📜</span> NHẬT KÝ CHIẾN TRƯỜNG 20 CÂU HỎI
+        </h3>
+        <div id="debrief-items-wrap" class="flex flex-col gap-3 max-h-96 overflow-y-auto pr-2">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="mt-4 text-center text-xs text-slate-500 font-tactical tracking-wider">
+    FREE FIRE TACTICAL QUIZ SYSTEM • TIẾNG ANH 4 GLOBAL SUCCESS • 100% VECTOR SVG
+  </footer>
+
+  <script>
+    /* Web Audio Sound Synthesizer (Zero External Audio File Dependency) */
+    class TacticalAudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.soundEnabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      toggle() {
+        this.soundEnabled = !this.soundEnabled;
+        return this.soundEnabled;
+      }
+      playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.25, timeOffset = 0) {
+        if (!this.soundEnabled) return;
+        this.init();
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + timeOffset);
+
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime + timeOffset);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + timeOffset + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(this.ctx.currentTime + timeOffset);
+          osc.stop(this.ctx.currentTime + timeOffset + duration);
+        } catch (e) {
+          console.warn('Audio warning:', e);
+        }
+      }
+      playHit() {
+        // Laser Hitmarker sound
+        this.playTone(880, 'square', 0.1, 0.2, 0);
+        this.playTone(1320, 'triangle', 0.18, 0.25, 0.06);
+      }
+      playArmorBreak() {
+        // Low distorted rumble for damage
+        this.playTone(180, 'sawtooth', 0.25, 0.35, 0);
+        this.playTone(90, 'square', 0.35, 0.4, 0.08);
+      }
+      playReload() {
+        // Tactical mechanical click
+        this.playTone(1200, 'sine', 0.04, 0.2, 0);
+        this.playTone(1600, 'sine', 0.05, 0.25, 0.06);
+      }
+      playRankUp() {
+        // Triumphant ascending triad
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((f, idx) => {
+          this.playTone(f, 'triangle', 0.2, 0.3, idx * 0.08);
+        });
+      }
+      playBooyah() {
+        // Epic victory brass fanfare
+        const anthem = [
+          { f: 523.25, d: 0.15, t: 0 },
+          { f: 659.25, d: 0.15, t: 0.14 },
+          { f: 783.99, d: 0.15, t: 0.28 },
+          { f: 1046.50, d: 0.45, t: 0.42 },
+          { f: 783.99, d: 0.18, t: 0.72 },
+          { f: 1046.50, d: 0.7, t: 0.90 }
+        ];
+        anthem.forEach(n => {
+          this.playTone(n.f, 'sawtooth', n.d, 0.3, n.t);
+        });
+      }
+    }
+
+    const audio = new TacticalAudioEngine();
+
+    const canvas = document.getElementById('fireworks-canvas');
+    const fCtx = canvas.getContext('2d');
+    let particles = [];
+    let fireworkAnimId = null;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function triggerBooyahFireworks() {
+      particles = [];
+      const colors = ['#FFD700', '#FF7700', '#FF3D00', '#00F0FF', '#FFFFFF', '#06D6A0'];
+      for (let i = 0; i < 110; i++) {
+        particles.push({
+          x: canvas.width * 0.5,
+          y: canvas.height * 0.45,
+          w: Math.random() * 8 + 4,
+          h: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 22,
+          vy: (Math.random() - 0.7) * 24,
+          rot: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 14,
+          alpha: 1,
+          gravity: 0.4
+        });
+      }
+      if (!fireworkAnimId) animateFireworks();
+    }
+
+    function animateFireworks() {
+      fCtx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.rot += p.vRot;
+        p.alpha -= 0.009;
+
+        if (p.alpha <= 0 || p.y > canvas.height + 30) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        fCtx.save();
+        fCtx.translate(p.x, p.y);
+        fCtx.rotate((p.rot * Math.PI) / 180);
+        fCtx.fillStyle = p.color;
+        fCtx.globalAlpha = Math.max(0, p.alpha);
+        fCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        fCtx.restore();
+      }
+
+      if (particles.length > 0) {
+        fireworkAnimId = requestAnimationFrame(animateFireworks);
+      } else {
+        cancelAnimationFrame(fireworkAnimId);
+        fireworkAnimId = null;
+        fCtx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    const SVG_LIB = {
+      flags: {
+        vietnam: `
+          <svg viewBox="0 0 300 200" class="w-full max-w-[190px] h-auto rounded-lg shadow-neon-orange border border-slate-600">
+            <rect width="300" height="200" fill="#DA251D"/>
+            <polygon points="150,45 162,82 201,82 170,105 182,142 150,119 118,142 130,105 99,82 138,82" fill="#FFFF00"/>
+          </svg>
+        `,
+        japan: `
+          <svg viewBox="0 0 300 200" class="w-full max-w-[190px] h-auto rounded-lg shadow-lg border border-slate-600">
+            <rect width="300" height="200" fill="#FFFFFF"/>
+            <circle cx="150" cy="100" r="58" fill="#BC002D"/>
+          </svg>
+        `,
+        america: `
+          <svg viewBox="0 0 300 200" class="w-full max-w-[190px] h-auto rounded-lg shadow-lg border border-slate-600">
+            <rect width="300" height="200" fill="#B22234"/>
+            <g fill="#FFF">
+              <rect y="15.38" width="300" height="15.38"/>
+              <rect y="46.15" width="300" height="15.38"/>
+              <rect y="76.92" width="300" height="15.38"/>
+              <rect y="107.69" width="300" height="15.38"/>
+              <rect y="138.46" width="300" height="15.38"/>
+              <rect y="169.23" width="300" height="15.38"/>
+            </g>
+            <rect width="125" height="107.69" fill="#3C3B6E"/>
+            <g fill="#FFF">
+              <circle cx="20" cy="20" r="4"/><circle cx="60" cy="20" r="4"/><circle cx="100" cy="20" r="4"/>
+              <circle cx="40" cy="45" r="4"/><circle cx="80" cy="45" r="4"/>
+              <circle cx="20" cy="70" r="4"/><circle cx="60" cy="70" r="4"/><circle cx="100" cy="70" r="4"/>
+              <circle cx="60" cy="92" r="4"/>
+            </g>
+          </svg>
+        `,
+        britain: `
+          <svg viewBox="0 0 300 200" class="w-full max-w-[190px] h-auto rounded-lg shadow-lg border border-slate-600">
+            <rect width="300" height="200" fill="#012169"/>
+            <path d="M0,0 L300,200 M300,0 L0,200" stroke="#FFF" stroke-width="32"/>
+            <path d="M0,0 L300,200" stroke="#C8102E" stroke-width="12"/>
+            <path d="M300,0 L0,200" stroke="#C8102E" stroke-width="12"/>
+            <path d="M150,0 V200 M0,100 H300" stroke="#FFF" stroke-width="58"/>
+            <path d="M150,0 V200 M0,100 H300" stroke="#C8102E" stroke-width="34"/>
+          </svg>
+        `,
+        australia: `
+          <svg viewBox="0 0 300 200" class="w-full max-w-[190px] h-auto rounded-lg shadow-lg border border-slate-600">
+            <rect width="300" height="200" fill="#00008B"/>
+            <g transform="scale(0.5)">
+              <rect width="300" height="200" fill="#012169"/>
+              <path d="M0,0 L300,200 M300,0 L0,200" stroke="#FFF" stroke-width="32"/>
+              <path d="M0,0 L300,200" stroke="#C8102E" stroke-width="12"/>
+              <path d="M150,0 V200 M0,100 H300" stroke="#FFF" stroke-width="58"/>
+              <path d="M150,0 V200 M0,100 H300" stroke="#C8102E" stroke-width="34"/>
+            </g>
+            <polygon points="75,135 79,145 90,145 81,152 84,162 75,155 66,162 69,152 60,145 71,145" fill="#FFF"/>
+            <circle cx="240" cy="40" r="5" fill="#FFF"/><circle cx="260" cy="80" r="5" fill="#FFF"/>
+            <circle cx="230" cy="120" r="5" fill="#FFF"/><circle cx="200" cy="80" r="5" fill="#FFF"/>
+            <circle cx="240" cy="160" r="7" fill="#FFF"/>
+          </svg>
+        `,
+        singapore: `
+          <svg viewBox="0 0 300 200" class="w-full max-w-[190px] h-auto rounded-lg shadow-lg border border-slate-600">
+            <rect width="300" height="100" fill="#ED2939"/>
+            <rect y="100" width="300" height="100" fill="#FFFFFF"/>
+            <path d="M 60,25 A 30,30 0 1,0 60,75 A 24,24 0 1,1 60,25 Z" fill="#FFF"/>
+            <circle cx="75" cy="40" r="3" fill="#FFF"/><circle cx="86" cy="48" r="3" fill="#FFF"/>
+            <circle cx="82" cy="62" r="3" fill="#FFF"/><circle cx="68" cy="62" r="3" fill="#FFF"/>
+            <circle cx="64" cy="48" r="3" fill="#FFF"/>
+          </svg>
+        `,
+        malaysia: `
+          <svg viewBox="0 0 300 200" class="w-full max-w-[190px] h-auto rounded-lg shadow-lg border border-slate-600">
+            <rect width="300" height="200" fill="#CC0000"/>
+            <g fill="#FFF">
+              <rect y="14.3" width="300" height="14.3"/><rect y="42.9" width="300" height="14.3"/>
+              <rect y="71.4" width="300" height="14.3"/><rect y="100" width="300" height="14.3"/>
+              <rect y="128.6" width="300" height="14.3"/><rect y="157.1" width="300" height="14.3"/>
+              <rect y="185.7" width="300" height="14.3"/>
+            </g>
+            <rect width="150" height="114.3" fill="#000066"/>
+            <path d="M 65,30 A 30,30 0 1,0 65,85 A 23,23 0 1,1 65,30 Z" fill="#FFCC00"/>
+            <polygon points="90,45 93,53 102,53 95,58 97,66 90,61 83,66 85,58 78,53 87,53" fill="#FFCC00"/>
+          </svg>
+        `
+      },
+      characters: {
+        mai: `
+          <div class="flex flex-col items-center">
+            <svg viewBox="0 0 100 100" class="w-20 h-20 sm:w-24 sm:h-24">
+              <circle cx="50" cy="50" r="45" fill="#FFEAA7"/>
+              <path d="M20 85 C 20 60, 80 60, 80 85 L 80 100 L 20 100 Z" fill="#FF7700"/>
+              <!-- Headband -->
+              <circle cx="50" cy="45" r="28" fill="#FDE2D4"/>
+              <path d="M24 35 Q 50 15 76 35" stroke="#2D3436" stroke-width="12" fill="none" stroke-linecap="round"/>
+              <circle cx="40" cy="45" r="4" fill="#2D3436"/><circle cx="60" cy="45" r="4" fill="#2D3436"/>
+              <circle cx="34" cy="52" r="3" fill="#FF7675"/><circle cx="66" cy="52" r="3" fill="#FF7675"/>
+              <path d="M44 54 Q 50 60 56 54" stroke="#D63031" stroke-width="2.5" fill="none"/>
+            </svg>
+            <span class="text-xs font-tactical font-bold text-ff-yellow bg-ff-surface px-2 py-0.5 rounded border border-ff-border mt-1">Mai (Vietnam)</span>
+          </div>
+        `,
+        akiko: `
+          <div class="flex flex-col items-center">
+            <svg viewBox="0 0 100 100" class="w-20 h-20 sm:w-24 sm:h-24">
+              <circle cx="50" cy="50" r="45" fill="#FFD1DC"/>
+              <path d="M20 85 C 20 60, 80 60, 80 85 L 80 100 L 20 100 Z" fill="#6C5CE7"/>
+              <circle cx="50" cy="45" r="28" fill="#FDE2D4"/>
+              <!-- Black Bob Hair -->
+              <path d="M22 45 C 22 20, 78 20, 78 45 L 75 60 C 65 45, 35 45, 25 60 Z" fill="#2D3436"/>
+              <circle cx="40" cy="46" r="3.5" fill="#2D3436"/><circle cx="60" cy="46" r="3.5" fill="#2D3436"/>
+              <path d="M44 55 Q 50 61 56 55" stroke="#D63031" stroke-width="2.5" fill="none"/>
+            </svg>
+            <span class="text-xs font-tactical font-bold text-ff-cyan bg-ff-surface px-2 py-0.5 rounded border border-ff-border mt-1">Akiko (Japan)</span>
+          </div>
+        `,
+        tony: `
+          <div class="flex flex-col items-center">
+            <svg viewBox="0 0 100 100" class="w-20 h-20 sm:w-24 sm:h-24">
+              <circle cx="50" cy="50" r="45" fill="#C7ECEE"/>
+              <path d="M20 85 C 20 60, 80 60, 80 85 L 80 100 L 20 100 Z" fill="#0984E3"/>
+              <circle cx="50" cy="45" r="28" fill="#FFEAA7"/>
+              <!-- Brown spiky hair -->
+              <polygon points="50,15 35,32 45,30 50,22 55,30 65,32" fill="#784E3D"/>
+              <circle cx="40" cy="45" r="4" fill="#2D3436"/><circle cx="60" cy="45" r="4" fill="#2D3436"/>
+              <path d="M43 55 Q 50 62 57 55" stroke="#2D3436" stroke-width="2.5" fill="none"/>
+            </svg>
+            <span class="text-xs font-tactical font-bold text-emerald-400 bg-ff-surface px-2 py-0.5 rounded border border-ff-border mt-1">Tony (Australia)</span>
+          </div>
+        `
+      },
+      kelly: {
+        victory: `
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+            <circle cx="50" cy="50" r="45" fill="#FF7700"/>
+            <circle cx="50" cy="46" r="28" fill="#FFEAA7"/>
+            <path d="M22 45 Q 50 20 78 45" stroke="#FFA502" stroke-width="10" fill="none"/>
+            <!-- Headband -->
+            <rect x="25" y="32" width="50" height="8" rx="3" fill="#2F3542"/>
+            <circle cx="50" cy="36" r="3" fill="#FFD700"/>
+            <path d="M36 44 Q 40 40 44 44" stroke="#2D3436" stroke-width="3" fill="none"/>
+            <path d="M56 44 Q 60 40 64 44" stroke="#2D3436" stroke-width="3" fill="none"/>
+            <path d="M43 54 Q 50 63 57 54" stroke="#D63031" stroke-width="3" fill="#FF3D00"/>
+          </svg>
+        `,
+        damage: `
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+            <circle cx="50" cy="50" r="45" fill="#2F3542"/>
+            <circle cx="50" cy="46" r="28" fill="#FDE2D4"/>
+            <rect x="25" y="32" width="50" height="8" rx="3" fill="#FF3D00"/>
+            <!-- X eyes -->
+            <line x1="37" y1="42" x2="43" y2="48" stroke="#2D3436" stroke-width="3"/>
+            <line x1="43" y1="42" x2="37" y2="48" stroke="#2D3436" stroke-width="3"/>
+            <line x1="57" y1="42" x2="63" y2="48" stroke="#2D3436" stroke-width="3"/>
+            <line x1="63" y1="42" x2="57" y2="48" stroke="#2D3436" stroke-width="3"/>
+            <path d="M44 58 Q 50 53 56 58" stroke="#2D3436" stroke-width="3" fill="none"/>
+          </svg>
+        `
+      }
+    };
+
+    const TACTICAL_QUESTIONS = [
+      // Q1: MC - Flag Vietnam
+      {
+        id: 1,
+        type: 'multiple_choice',
+        category: 'XẠ THỦ QUỐC KỲ',
+        question: 'Quan sát quốc kỳ của Chiến binh Mai và chọn câu trả lời đúng cho: "Where are you from?"',
+        visual: { type: 'flag', key: 'vietnam' },
+        options: [
+          "I'm from Vietnam.",
+          "I'm from America.",
+          "I'm from Britain.",
+          "I'm from Japan."
+        ],
+        answer: 0,
+        explanation: 'Quốc kỳ cờ đỏ sao vàng là của Việt Nam. Khi được hỏi "Where are you from?", ta trả lời: "I\'m from Vietnam."'
+      },
+      // Q2: MC - Akiko Japan
+      {
+        id: 2,
+        type: 'multiple_choice',
+        category: 'NHẬN DIỆN ĐỒNG ĐỘI',
+        question: 'Đây là đặc nhiệm Akiko. Hãy hoàn thành câu: "Where is she from?"',
+        visual: {
+          type: 'custom',
+          html: `<div class="flex items-center gap-6">${SVG_LIB.characters.akiko}${SVG_LIB.flags.japan}</div>`
+        },
+        options: [
+          "She is from Australia.",
+          "She is from Japan.",
+          "He is from Japan.",
+          "She are from Japan."
+        ],
+        answer: 1,
+        explanation: 'Akiko là bạn nữ nên dùng chủ ngữ "She" kết hợp với động từ "is": "She is from Japan."'
+      },
+      // Q3: Radar True/False - Tony Australia
+      {
+        id: 3,
+        type: 'true_false',
+        category: 'RADAR TRINH SÁT',
+        question: 'Quét thẻ quân nhân của Tony và đánh giá khẳng định:',
+        statement: 'Tony is from Australia.',
+        visual: {
+          type: 'custom',
+          html: `
+            <div class="bg-slate-900 border-2 border-emerald-500 rounded-xl p-3 w-full max-w-sm flex items-center justify-between shadow-lg">
+              <div class="flex items-center gap-3">
+                <div class="w-14 h-14 bg-slate-800 rounded-lg p-1 border border-emerald-400">${SVG_LIB.characters.tony}</div>
+                <div>
+                  <p class="text-[10px] text-emerald-400 font-tactical font-black uppercase">TACTICAL ID PASS</p>
+                  <p class="font-tactical font-black text-white text-lg">TONY CHEN</p>
+                  <p class="text-xs text-slate-300">Base: <strong class="text-emerald-400 font-bold">Australia</strong></p>
+                </div>
+              </div>
+              <div class="w-16">${SVG_LIB.flags.australia}</div>
+            </div>
+          `
+        },
+        answer: true,
+        explanation: 'Chính xác! Căn cứ trên thẻ ghi rõ quốc gia của Tony là Australia (Nước Úc).'
+      },
+      // Q4: Comms Fill-in-the-blank
+      {
+        id: 4,
+        type: 'fill_blank',
+        category: 'BỘ ĐÀM LIÊN LẠC',
+        question: 'Điền từ còn thiếu vào tín hiệu bộ đàm: "Where _____ he from?" - "He is from Britain."',
+        options: ["is", "are", "am", "do"],
+        visual: {
+          type: 'custom',
+          html: `<div class="p-3 rounded-lg bg-slate-800 border border-ff-cyan text-ff-cyan font-tactical font-bold text-sm tracking-wider">📻 TÍN HIỆU ĐỒNG ĐỘI: Bill (Britain)</div>`
+        },
+        answer: "is",
+        explanation: 'Chủ ngữ ngôi thứ ba số ít "he" luôn đi kèm với trợ động từ to be "is" trong câu hỏi quê quán.'
+      },
+      // Q5: Scramble Word
+      {
+        id: 5,
+        type: 'scramble',
+        category: 'GIẢI MÃ MẬT MÃ',
+        question: 'Bấm các khối mật mã để sắp xếp thành câu hỏi chuẩn quân sự:',
+        words: ['Where', 'are', 'you', 'from', '?'],
+        correctSentence: 'Where are you from ?',
+        visual: {
+          type: 'custom',
+          html: `<div class="text-ff-yellow font-tactical font-bold text-sm bg-ff-surface px-4 py-2 rounded border border-ff-border">💡 GỢI Ý MẬT MÃ: Cấu trúc hỏi quê hương bắt đầu bằng "Where"</div>`
+        },
+        explanation: 'Thứ tự sắp xếp đúng: "Where + are + you + from + ?"'
+      },
+      // Q6: Find Mistake
+      {
+        id: 6,
+        type: 'find_mistake',
+        category: 'GỠ MÌN NGỮ PHÁP',
+        question: 'Phát hiện ngòi nổ bị lỗi trong câu sau để vô hiệu hóa:',
+        tokens: [
+          { text: 'She', wrong: false },
+          { text: 'are', wrong: true, correct: 'is' },
+          { text: 'from', wrong: false },
+          { text: 'Malaysia.', wrong: false }
+        ],
+        visual: {
+          type: 'custom',
+          html: `<div class="flex items-center gap-3">${SVG_LIB.flags.malaysia}</div>`
+        },
+        explanation: 'Từ sai là "are". Chủ ngữ "She" phải đi với động từ to be là "is" ("She is from Malaysia.").'
+      },
+      // Q7: Multiple Choice - Greeting Dialogue
+      {
+        id: 7,
+        type: 'multiple_choice',
+        category: 'GIAO TIẾP TÁC CHIẾN',
+        question: 'Khi Đại úy Kelly chào: "Nice to meet you, recruit!" — Bạn đáp lại thế nào?',
+        visual: {
+          type: 'custom',
+          html: `<div class="w-16 h-16">${SVG_LIB.kelly.victory}</div>`
+        },
+        options: [
+          "Nice to meet you, too!",
+          "I'm from America.",
+          "Goodbye, Captain!",
+          "No, I am not."
+        ],
+        answer: 0,
+        explanation: 'Cách chào đáp lại lịch sự khi gặp gỡ là: "Nice to meet you, too!" (Tôi cũng rất vui được gặp bạn).'
+      },
+      // Q8: Radar True/False - American Flag
+      {
+        id: 8,
+        type: 'true_false',
+        category: 'RADAR TRINH SÁT',
+        question: 'Kiểm tra tín hiệu hình ảnh lá cờ bên dưới:',
+        statement: 'This is the flag of Britain.',
+        visual: { type: 'flag', key: 'america' },
+        answer: false,
+        explanation: 'Sai rồi! Đây là quốc kỳ Hợp chúng quốc Hoa Kỳ (America), không phải cờ Vương quốc Anh (Britain).'
+      },
+      // Q9: Scramble Word
+      {
+        id: 9,
+        type: 'scramble',
+        category: 'GIẢI MÃ MẬT MÃ',
+        question: 'Lắp ráp các mảnh dữ liệu để thành câu giới thiệu quê quán của Bill:',
+        words: ['He', 'is', 'from', 'America', '.'],
+        correctSentence: 'He is from America .',
+        visual: {
+          type: 'custom',
+          html: `<div class="text-ff-cyan font-tactical font-bold text-sm bg-ff-surface px-4 py-2 rounded border border-ff-border">🇺🇸 MẬT DANH: Bill (New York, America)</div>`
+        },
+        explanation: 'Cấu trúc câu khẳng định: Chủ ngữ (He) + to be (is) + from + tên nước (America) + dấu chấm (.).'
+      },
+      // Q10: Tactical Match Pair (3 SEA Countries)
+      {
+        id: 10,
+        type: 'match_pair',
+        category: 'NỐI CẶP TÁC CHIẾN',
+        question: 'Bấm 1 tên quốc gia bên trái, sau đó bấm lá cờ tương ứng bên phải:',
+        pairs: [
+          { id: 'p1', left: 'Singapore', rightKey: 'singapore' },
+          { id: 'p2', left: 'Malaysia', rightKey: 'malaysia' },
+          { id: 'p3', left: 'Australia', rightKey: 'australia' }
+        ],
+        visual: {
+          type: 'custom',
+          html: `<div class="text-xs font-tactical font-bold text-ff-yellow bg-ff-surface px-3 py-1.5 rounded border border-ff-border">⚡ KHU VỰC CHIẾN SỰ: ĐÔNG NAM Á & CHÂU ĐẠI DƯƠNG</div>`
+        },
+        explanation: 'Tuyệt đỉnh tác chiến! Bạn đã ghi nhớ chuẩn xác cờ Singapore, Malaysia và Australia.'
+      },
+      // Q11: Comms Fill-in-the-blank (Yes/No negative)
+      {
+        id: 11,
+        type: 'fill_blank',
+        category: 'BỘ ĐÀM LIÊN LẠC',
+        question: 'Báo cáo trinh sát: "Is she from Japan?" — "No, she _______."',
+        options: ["isn't", "is", "aren't", "not"],
+        visual: {
+          type: 'custom',
+          html: `<div class="p-2.5 rounded bg-ff-fire/20 border border-ff-fire text-ff-fire font-tactical font-bold text-xs">⚠️ TÌNH BÁO: Mục tiêu không đến từ Nhật Bản</div>`
+        },
+        answer: "isn't",
+        explanation: 'Câu trả lời phủ định cho câu hỏi "Is she...?" là: "No, she isn\'t" (viết tắt của is not).'
+      },
+      // Q12: Multiple Choice - Plural Subject
+      {
+        id: 12,
+        type: 'multiple_choice',
+        category: 'NGỮ PHÁP TẬP KÍCH',
+        question: 'Mai and Nam are friends. They _______ from Vietnam.',
+        visual: {
+          type: 'custom',
+          html: `<div class="flex items-center gap-4">${SVG_LIB.characters.mai}${SVG_LIB.flags.vietnam}</div>`
+        },
+        options: ["are", "is", "am", "be"],
+        answer: 0,
+        explanation: 'Với chủ ngữ số nhiều "They" (họ/chúng ta), động từ to be phải là "are" ("They are from Vietnam.").'
+      },
+      // Q13: Find Mistake
+      {
+        id: 13,
+        type: 'find_mistake',
+        category: 'GỠ MÌN NGỮ PHÁP',
+        question: 'Bấm vào từ sai quy tắc trong câu hỏi:',
+        tokens: [
+          { text: 'Where', wrong: false },
+          { text: 'is', wrong: true, correct: 'are' },
+          { text: 'they', wrong: false },
+          { text: 'from?', wrong: false }
+        ],
+        visual: {
+          type: 'custom',
+          html: `<div class="text-rose-400 font-tactical font-bold text-xs bg-rose-950/40 px-3 py-1 rounded border border-rose-800">💣 CẢNH BÁO MÌN: Sai động từ to be với "they"</div>`
+        },
+        explanation: 'Từ sai là "is". Vì chủ ngữ là "they", động từ to be phải đổi thành "are" ("Where are they from?").'
+      },
+      // Q14: Radar True/False - Nam Dialogue
+      {
+        id: 14,
+        type: 'true_false',
+        category: 'RADAR TRINH SÁT',
+        question: 'Bản tin mật: "Nam: Hello, my name is Nam. I am from Hanoi, Vietnam." - Đánh giá nhận định:',
+        statement: 'Nam is from Japan.',
+        visual: {
+          type: 'custom',
+          html: `<div class="p-3 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-300">📻 <strong>AUDIO DECODE:</strong> "Hello, my name is Nam. I am from Hanoi, Vietnam."</div>`
+        },
+        answer: false,
+        explanation: 'Sai hoàn toàn! Nam đến từ Hà Nội, Việt Nam, không phải Nhật Bản (Japan).'
+      },
+      // Q15: Multiple Choice - Linda Britain
+      {
+        id: 15,
+        type: 'multiple_choice',
+        category: 'XẠ THỦ QUỐC KỲ',
+        question: 'Linda mang theo quốc kỳ này. Hỏi: "Where is Linda from?"',
+        visual: { type: 'flag', key: 'britain' },
+        options: [
+          "She is from Britain.",
+          "She is from America.",
+          "He is from Britain.",
+          "She is from Australia."
+        ],
+        answer: 0,
+        explanation: 'Lá cờ đại diện cho Vương quốc Anh (Britain). Với bạn nữ Linda: "She is from Britain."'
+      },
+      // Q16: Scramble Word - Greeting
+      {
+        id: 16,
+        type: 'scramble',
+        category: 'GIẢI MÃ MẬT MÃ',
+        question: 'Giải mã mật khẩu giao tiếp khi gặp lại chỉ huy:',
+        words: ['Nice', 'to', 'see', 'you', 'again', '.'],
+        correctSentence: 'Nice to see you again .',
+        visual: {
+          type: 'custom',
+          html: `<div class="text-3xl">🫡🎖️</div>`
+        },
+        explanation: 'Thành ngữ chào hỏi khi gặp lại người quen: "Nice to see you again." (Rất vui được gặp lại bạn).'
+      },
+      // Q17: Comms Fill-in-the-blank (Subject pronoun)
+      {
+        id: 17,
+        type: 'fill_blank',
+        category: 'BỘ ĐÀM LIÊN LẠC',
+        question: 'Chỉ huy hỏi: "Where is _______ from?" — Binh nhì: "He is from Singapore."',
+        options: ["he", "she", "you", "they"],
+        visual: {
+          type: 'custom',
+          html: `<div class="flex items-center gap-3">${SVG_LIB.flags.singapore}</div>`
+        },
+        answer: "he",
+        explanation: 'Vì câu trả lời dùng đại từ "He is..." nên câu hỏi tương ứng phải dùng "he": "Where is he from?".'
+      },
+      // Q18: Find Mistake - I am
+      {
+        id: 18,
+        type: 'find_mistake',
+        category: 'GỠ MÌN NGỮ PHÁP',
+        question: 'Vô hiệu quả từ bị sai ngữ pháp trong câu của tân binh:',
+        tokens: [
+          { text: 'I', wrong: false },
+          { text: 'is', wrong: true, correct: 'am' },
+          { text: 'from', wrong: false },
+          { text: 'Vietnam.', wrong: false }
+        ],
+        visual: {
+          type: 'custom',
+          html: `<div class="flex items-center gap-3">${SVG_LIB.characters.mai}</div>`
+        },
+        explanation: 'Từ sai là "is". Chủ ngữ "I" luôn luôn đi cùng động từ to be "am" ("I am from Vietnam" hoặc "I\'m from Vietnam").'
+      },
+      // Q19: Multiple Choice - Yes/No Ben Australia
+      {
+        id: 19,
+        type: 'multiple_choice',
+        category: 'GIAO TIẾP TÁC CHIẾN',
+        question: 'Quan sát huy hiệu của Ben (Australia). Hỏi: "Is Ben from Australia?"',
+        visual: {
+          type: 'custom',
+          html: `<div class="flex items-center gap-4">${SVG_LIB.characters.tony}${SVG_LIB.flags.australia}</div>`
+        },
+        options: [
+          "Yes, he is.",
+          "No, he isn't.",
+          "Yes, she is.",
+          "Yes, I am."
+        ],
+        answer: 0,
+        explanation: 'Ben là bạn nam đến từ nước Úc, do đó câu trả lời khẳng định chính xác là: "Yes, he is."'
+      },
+      // Q20: Boss Battle - Scramble sentence
+      {
+        id: 20,
+        type: 'scramble',
+        category: 'TRẬN ĐÁNH TRÙM CUỐI',
+        question: 'Nhiệm vụ cuối cùng để đạt BOOYAH: Giới thiệu người bạn mới Mai!',
+        words: ['This', 'is', 'my', 'friend', ',', 'Mai', '.'],
+        correctSentence: 'This is my friend , Mai .',
+        visual: {
+          type: 'custom',
+          html: `<div class="flex items-center gap-3 text-ff-yellow font-tactical text-base">👑 BOOYAH FINAL CHALLENGE: Giới thiệu bạn thân!</div>`
+        },
+        explanation: 'Cấu trúc giới thiệu bạn bè trang trọng: "This is my friend, Mai."'
+      }
+    ];
+
+    let currentIdx = 0;
+    let hp = 200;
+    const maxHp = 200;
+    let score = 0;
+    let kills = 0;
+    let combo = 0;
+    let maxCombo = 0;
+    let userTacticalLog = [];
+    let currentSelectedAnswer = null;
+    let isLocked = false;
+
+    // DOM Elements
+    const gameBody = document.getElementById('game-body');
+    const screenWelcome = document.getElementById('screen-welcome');
+    const screenGame = document.getElementById('screen-game');
+    const screenBooyah = document.getElementById('screen-booyah');
+
+    const btnStartGame = document.getElementById('btn-start-game');
+    const btnFireAction = document.getElementById('btn-fire-action');
+    const btnReplayMission = document.getElementById('btn-replay-mission');
+    const btnToggleDebrief = document.getElementById('btn-toggle-debrief');
+    const toggleSoundBtn = document.getElementById('toggle-sound-btn');
+    const soundOnSvg = document.getElementById('sound-on-svg');
+    const soundOffSvg = document.getElementById('sound-off-svg');
+
+    const hpBar = document.getElementById('hp-bar');
+    const hpText = document.getElementById('hp-text');
+    const scoreVal = document.getElementById('score-val');
+    const killsVal = document.getElementById('kills-val');
+    const comboPill = document.getElementById('combo-pill');
+    const rankBadgePill = document.getElementById('rank-badge-pill');
+
+    const zoneCounter = document.getElementById('zone-counter');
+    const zonePercent = document.getElementById('zone-percent');
+    const zoneProgress = document.getElementById('zone-progress');
+
+    const combatCard = document.getElementById('combat-card');
+    const missionTypeTag = document.getElementById('mission-type-tag');
+    const threatLevel = document.getElementById('threat-level');
+    const combatQuestionText = document.getElementById('combat-question-text');
+    const combatVisual = document.getElementById('combat-visual');
+    const combatAnswers = document.getElementById('combat-answers');
+
+    const tacticalComms = document.getElementById('tactical-comms');
+    const commsTitle = document.getElementById('comms-title');
+    const commsExplanation = document.getElementById('comms-explanation');
+    const kellyAvatarSlot = document.getElementById('kelly-avatar-slot');
+
+    toggleSoundBtn.addEventListener('click', () => {
+      const state = audio.toggle();
+      soundOnSvg.classList.toggle('hidden', !state);
+      soundOffSvg.classList.toggle('hidden', state);
+      if (state) audio.playReload();
+    });
+
+    function getRankName(pts) {
+      if (pts < 400) return 'ĐỒNG I';
+      if (pts < 800) return 'BẠC II';
+      if (pts < 1400) return 'VÀNG III';
+      if (pts < 2000) return 'BẠCH KIM IV';
+      if (pts < 2600) return 'KIM CƯƠNG V';
+      if (pts < 3200) return 'HUYỀN THOẠI';
+      return 'THÁCH ĐẤU 👑';
+    }
+
+    function updateHUD() {
+      // HP Bar
+      const hpPct = Math.max(0, Math.min(100, (hp / maxHp) * 100));
+      hpBar.style.width = `${hpPct}%`;
+      hpText.textContent = `${hp} / 200 HP`;
+      if (hp < 60) {
+        hpBar.className = 'h-full bg-rose-600 transition-all duration-300';
+      } else if (hp < 120) {
+        hpBar.className = 'h-full bg-amber-500 transition-all duration-300';
+      } else {
+        hpBar.className = 'h-full bg-gradient-to-r from-ff-orange via-ff-yellow to-emerald-400 transition-all duration-300';
+      }
+
+      // Score, Kills & Rank
+      scoreVal.textContent = score;
+      killsVal.textContent = kills;
+      const rankName = getRankName(score);
+      rankBadgePill.textContent = `RANK: ${rankName}`;
+
+      // Combo Pill
+      if (combo >= 2) {
+        comboPill.classList.remove('hidden');
+        comboPill.textContent = `BOOYAH COMBO x${combo}`;
+      } else {
+        comboPill.classList.add('hidden');
+      }
+    }
+
+    btnStartGame.addEventListener('click', () => {
+      audio.playReload();
+      startCombat();
+    });
+
+    btnReplayMission.addEventListener('click', () => {
+      audio.playReload();
+      startCombat();
+    });
+
+    btnToggleDebrief.addEventListener('click', () => {
+      audio.playReload();
+      const wrap = document.getElementById('full-debrief-list');
+      wrap.classList.toggle('hidden');
+      wrap.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    function startCombat() {
+      currentIdx = 0;
+      hp = 200;
+      score = 0;
+      kills = 0;
+      combo = 0;
+      maxCombo = 0;
+      userTacticalLog = [];
+
+      updateHUD();
+      screenWelcome.classList.add('hidden');
+      screenBooyah.classList.add('hidden');
+      screenGame.classList.remove('hidden');
+      screenGame.classList.add('flex');
+
+      loadTacticalQuestion(currentIdx);
+    }
+
+    function loadTacticalQuestion(idx) {
+      isLocked = false;
+      currentSelectedAnswer = null;
+      tacticalComms.classList.add('hidden');
+
+      btnFireAction.disabled = true;
+      btnFireAction.textContent = 'KHAI HOẢ / KIỂM TRA';
+      btnFireAction.className = 'clip-tactical w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-ff-orange to-ff-fire hover:brightness-110 active:scale-95 text-white font-tactical font-black text-xl tracking-wider shadow-neon-orange transition disabled:opacity-40 disabled:cursor-not-allowed';
+
+      const q = TACTICAL_QUESTIONS[idx];
+      const total = TACTICAL_QUESTIONS.length;
+
+      // Update Zone HUD
+      zoneCounter.textContent = `${String(idx + 1).padStart(2, '0')} / ${total}`;
+      const pct = Math.round(((idx + 1) / total) * 100);
+      zoneProgress.style.width = `${pct}%`;
+      zonePercent.textContent = `${pct}% TIẾN ĐỘ`;
+
+      missionTypeTag.textContent = q.category;
+      threatLevel.textContent = `MỤC TIÊU #${String(idx + 1).padStart(2, '0')}`;
+      combatQuestionText.textContent = q.question;
+
+      // Render Visual Target
+      renderVisualTarget(q);
+
+      // Render Answers Hub
+      renderAnswersHub(q);
+    }
+
+    function renderVisualTarget(q) {
+      combatVisual.innerHTML = '';
+      if (q.visual.type === 'flag') {
+        combatVisual.innerHTML = SVG_LIB.flags[q.visual.key] || '';
+      } else if (q.visual.type === 'custom') {
+        combatVisual.innerHTML = q.visual.html;
+      }
+    }
+
+    function renderAnswersHub(q) {
+      combatAnswers.innerHTML = '';
+
+      if (q.type === 'multiple_choice') {
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
+        q.options.forEach((optText, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'opt-btn clip-tactical p-4 bg-ff-surface hover:bg-slate-700/80 border border-ff-border text-left font-sans font-bold text-slate-200 transition flex items-center gap-3';
+          btn.innerHTML = `
+            <span class="w-8 h-8 rounded bg-slate-900 border border-slate-700 flex items-center justify-center font-tactical font-black text-ff-yellow text-sm shrink-0">
+              ${['A', 'B', 'C', 'D'][i]}
+            </span>
+            <span class="text-sm sm:text-base">${optText}</span>
+          `;
+          btn.onclick = () => {
+            if (isLocked) return;
+            audio.playReload();
+            document.querySelectorAll('.opt-btn').forEach(b => {
+              b.classList.remove('border-ff-orange', 'bg-ff-orange/20', 'shadow-neon-orange');
+            });
+            btn.classList.add('border-ff-orange', 'bg-ff-orange/20', 'shadow-neon-orange');
+            currentSelectedAnswer = i;
+            btnFireAction.disabled = false;
+          };
+          grid.appendChild(btn);
+        });
+        combatAnswers.appendChild(grid);
+      }
+      else if (q.type === 'true_false') {
+        const wrap = document.createElement('div');
+        wrap.className = 'flex flex-col gap-4';
+
+        const stmtBox = document.createElement('div');
+        stmtBox.className = 'p-3.5 rounded-lg bg-slate-900 border border-ff-cyan/40 text-center font-sans font-bold text-base sm:text-lg text-white';
+        stmtBox.innerHTML = `Radar Intel: "<span class="text-ff-cyan underline">${q.statement}</span>"`;
+        wrap.appendChild(stmtBox);
+
+        const btnGrid = document.createElement('div');
+        btnGrid.className = 'grid grid-cols-2 gap-4 font-tactical';
+
+        const items = [
+          { val: true, label: 'ĐÚNG (TRUE)', icon: '✅', color: 'hover:border-emerald-500 hover:bg-emerald-500/10' },
+          { val: false, label: 'SAI (FALSE)', icon: '❌', color: 'hover:border-rose-500 hover:bg-rose-500/10' }
+        ];
+
+        items.forEach(it => {
+          const btn = document.createElement('button');
+          btn.className = `tf-btn clip-tactical p-4 bg-ff-surface border border-ff-border ${it.color} text-white font-black text-lg transition flex items-center justify-center gap-2`;
+          btn.innerHTML = `<span>${it.icon}</span><span>${it.label}</span>`;
+          btn.onclick = () => {
+            if (isLocked) return;
+            audio.playReload();
+            document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('border-ff-orange', 'bg-ff-orange/20', 'shadow-neon-orange'));
+            btn.classList.add('border-ff-orange', 'bg-ff-orange/20', 'shadow-neon-orange');
+            currentSelectedAnswer = it.val;
+            btnFireAction.disabled = false;
+          };
+          btnGrid.appendChild(btn);
+        });
+
+        wrap.appendChild(btnGrid);
+        combatAnswers.appendChild(wrap);
+      }
+      else if (q.type === 'fill_blank') {
+        const wrap = document.createElement('div');
+        wrap.className = 'grid grid-cols-2 sm:grid-cols-4 gap-3 font-tactical';
+        q.options.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = 'blank-btn clip-tactical p-3.5 bg-ff-surface border border-ff-border hover:border-ff-cyan text-white font-black text-lg text-center transition';
+          btn.textContent = opt;
+          btn.onclick = () => {
+            if (isLocked) return;
+            audio.playReload();
+            document.querySelectorAll('.blank-btn').forEach(b => b.classList.remove('border-ff-cyan', 'bg-ff-cyan/20', 'shadow-neon-cyan'));
+            btn.classList.add('border-ff-cyan', 'bg-ff-cyan/20', 'shadow-neon-cyan');
+            currentSelectedAnswer = opt;
+            btnFireAction.disabled = false;
+          };
+          wrap.appendChild(btn);
+        });
+        combatAnswers.appendChild(wrap);
+      }
+      else if (q.type === 'scramble') {
+        renderTacticalScramble(q);
+      }
+      else if (q.type === 'find_mistake') {
+        renderTacticalMistake(q);
+      }
+      else if (q.type === 'match_pair') {
+        renderTacticalMatchPair(q);
+      }
+    }
+
+    function renderTacticalScramble(q) {
+      const wrap = document.createElement('div');
+      wrap.className = 'flex flex-col gap-4';
+
+      const targetBox = document.createElement('div');
+      targetBox.id = 'scramble-target-zone';
+      targetBox.className = 'min-h-[58px] p-3 rounded-xl bg-slate-900 border-2 border-dashed border-ff-cyan/50 flex flex-wrap items-center gap-2';
+
+      const placeholder = document.createElement('span');
+      placeholder.id = 'scramble-hint';
+      placeholder.className = 'text-xs sm:text-sm text-slate-500 italic select-none font-sans';
+      placeholder.textContent = 'Bấm các khối mật mã bên dưới để xếp vào đây...';
+      targetBox.appendChild(placeholder);
+      wrap.appendChild(targetBox);
+
+      const poolBox = document.createElement('div');
+      poolBox.id = 'scramble-pool-zone';
+      poolBox.className = 'flex flex-wrap gap-2.5 justify-center p-2';
+
+      const shuffled = [...q.words].sort(() => Math.random() - 0.5);
+      const chosenWords = [];
+
+      shuffled.forEach(word => {
+        const chip = document.createElement('button');
+        chip.className = 'scramble-chip clip-tag px-4 py-2 bg-ff-surface border border-ff-border text-white font-sans font-bold text-sm sm:text-base hover:border-ff-yellow transition';
+        chip.textContent = word;
+
+        chip.onclick = () => {
+          if (isLocked) return;
+          audio.playReload();
+
+          if (chip.parentElement === poolBox) {
+            placeholder.classList.add('hidden');
+            targetBox.appendChild(chip);
+            chip.classList.replace('bg-ff-surface', 'bg-ff-orange');
+            chip.classList.add('text-black', 'font-black');
+            chosenWords.push(word);
+          } else {
+            poolBox.appendChild(chip);
+            chip.classList.replace('bg-ff-orange', 'bg-ff-surface');
+            chip.classList.remove('text-black', 'font-black');
+            const idx = chosenWords.indexOf(word);
+            if (idx > -1) chosenWords.splice(idx, 1);
+            if (targetBox.querySelectorAll('.scramble-chip').length === 0) {
+              placeholder.classList.remove('hidden');
+            }
+          }
+
+          currentSelectedAnswer = chosenWords.join(' ');
+          btnFireAction.disabled = chosenWords.length !== q.words.length;
+        };
+
+        poolBox.appendChild(chip);
+      });
+
+      wrap.appendChild(poolBox);
+      combatAnswers.appendChild(wrap);
+    }
+
+    function renderTacticalMistake(q) {
+      const wrap = document.createElement('div');
+      wrap.className = 'flex flex-col items-center gap-4 py-2';
+
+      const bar = document.createElement('div');
+      bar.className = 'flex flex-wrap items-center justify-center gap-3 p-4 bg-slate-900 border border-slate-700 rounded-xl w-full';
+
+      q.tokens.forEach(tok => {
+        const btn = document.createElement('button');
+        btn.className = 'mine-token clip-tactical px-4 py-2.5 bg-ff-surface border border-ff-border font-sans font-bold text-base sm:text-lg text-slate-200 hover:border-rose-500 hover:bg-rose-500/10 transition';
+        btn.innerHTML = `<span class="underline decoration-ff-cyan decoration-2">${tok.text}</span>`;
+
+        btn.onclick = () => {
+          if (isLocked) return;
+          audio.playReload();
+          document.querySelectorAll('.mine-token').forEach(b => {
+            b.classList.remove('border-rose-500', 'bg-rose-500/20', 'text-rose-400');
+          });
+          btn.classList.add('border-rose-500', 'bg-rose-500/20', 'text-rose-400');
+          currentSelectedAnswer = tok;
+          btnFireAction.disabled = false;
+        };
+        bar.appendChild(btn);
+      });
+
+      wrap.appendChild(bar);
+      combatAnswers.appendChild(wrap);
+    }
+
+    function renderTacticalMatchPair(q) {
+      const wrap = document.createElement('div');
+      wrap.className = 'grid grid-cols-2 gap-4';
+
+      let selectedLeft = null;
+      let matchedCount = 0;
+      const matchedSet = new Set();
+
+      const leftCol = document.createElement('div');
+      leftCol.className = 'flex flex-col gap-2.5';
+      const rightCol = document.createElement('div');
+      rightCol.className = 'flex flex-col gap-2.5';
+
+      const leftItems = [...q.pairs].sort(() => Math.random() - 0.5);
+      const rightItems = [...q.pairs].sort(() => Math.random() - 0.5);
+
+      leftItems.forEach(p => {
+        const b = document.createElement('button');
+        b.className = 'match-left clip-tactical p-3.5 bg-ff-surface border border-ff-border font-tactical font-black text-white text-base text-center transition';
+        b.textContent = p.left;
+        b.dataset.id = p.id;
+
+        b.onclick = () => {
+          if (isLocked || matchedSet.has(p.id)) return;
+          audio.playReload();
+          document.querySelectorAll('.match-left').forEach(x => x.classList.remove('border-ff-cyan', 'bg-ff-cyan/20'));
+          b.classList.add('border-ff-cyan', 'bg-ff-cyan/20');
+          selectedLeft = p.id;
+        };
+        leftCol.appendChild(b);
+      });
+
+      rightItems.forEach(p => {
+        const f = document.createElement('button');
+        f.className = 'match-right clip-tactical p-2 bg-ff-surface border border-ff-border flex items-center justify-center transition overflow-hidden';
+        f.innerHTML = SVG_LIB.flags[p.rightKey];
+        f.dataset.id = p.id;
+
+        f.onclick = () => {
+          if (isLocked || matchedSet.has(p.id) || !selectedLeft) return;
+
+          if (selectedLeft === p.id) {
+            audio.playHit();
+            matchedSet.add(p.id);
+            matchedCount++;
+
+            const l = leftCol.querySelector(`[data-id="${p.id}"]`);
+            l.classList.add('border-emerald-500', 'bg-emerald-500/20', 'text-emerald-400', 'pointer-events-none');
+            f.classList.add('border-emerald-500', 'bg-emerald-500/20', 'pointer-events-none');
+
+            selectedLeft = null;
+            if (matchedCount === q.pairs.length) {
+              currentSelectedAnswer = true;
+              btnFireAction.disabled = false;
+              executeFireAction();
+            }
+          } else {
+            audio.playArmorBreak();
+            f.classList.add('border-rose-500', 'bg-rose-500/30');
+            setTimeout(() => f.classList.remove('border-rose-500', 'bg-rose-500/30'), 500);
+          }
+        };
+        rightCol.appendChild(f);
+      });
+
+      wrap.appendChild(leftCol);
+      wrap.appendChild(rightCol);
+      combatAnswers.appendChild(wrap);
+    }
+
+    btnFireAction.addEventListener('click', () => {
+      if (!isLocked) {
+        executeFireAction();
+      } else {
+        advanceToNextTarget();
+      }
+    });
+
+    function executeFireAction() {
+      const q = TACTICAL_QUESTIONS[currentIdx];
+      let isCorrect = false;
+
+      if (q.type === 'multiple_choice' || q.type === 'true_false') {
+        isCorrect = currentSelectedAnswer === q.answer;
+      } else if (q.type === 'fill_blank') {
+        isCorrect = currentSelectedAnswer === q.answer;
+      } else if (q.type === 'scramble') {
+        isCorrect = currentSelectedAnswer.trim() === q.correctSentence.trim();
+      } else if (q.type === 'find_mistake') {
+        isCorrect = currentSelectedAnswer && currentSelectedAnswer.wrong === true;
+      } else if (q.type === 'match_pair') {
+        isCorrect = currentSelectedAnswer === true;
+      }
+
+      isLocked = true;
+
+      userTacticalLog.push({
+        id: q.id,
+        category: q.category,
+        question: q.question,
+        isCorrect: isCorrect,
+        explanation: q.explanation
+      });
+
+      if (isCorrect) {
+        audio.playHit();
+        kills++;
+        combo++;
+        if (combo > maxCombo) maxCombo = combo;
+
+        // Healing bonus on streaks
+        if (combo >= 2 && hp < maxHp) {
+          hp = Math.min(maxHp, hp + 20);
+        }
+
+        const addedScore = 150 + combo * 30;
+        score += addedScore;
+
+        tacticalComms.className = 'rounded-xl p-4 border transition-all mb-4 bg-emerald-950/60 border-emerald-500 text-emerald-200';
+        commsTitle.textContent = combo >= 3 ? '🔥 HEADSHOT LIÊN HOÀN! ĐẠI ÚY KELLY KHEN NGỢI!' : '🎯 BẮN TRÚNG MỤC TIÊU! XUẤT SẮC!';
+        kellyAvatarSlot.innerHTML = SVG_LIB.kelly.victory;
+      } else {
+        audio.playArmorBreak();
+        combo = 0;
+        hp = Math.max(0, hp - 40);
+
+        gameBody.classList.add('screen-shake');
+        combatCard.classList.add('hit-flash');
+        setTimeout(() => {
+          gameBody.classList.remove('screen-shake');
+          combatCard.classList.remove('hit-flash');
+        }, 400);
+
+        tacticalComms.className = 'rounded-xl p-4 border transition-all mb-4 bg-rose-950/60 border-rose-500 text-rose-200';
+        commsTitle.textContent = '⚠️️ BỊ TRÚNG ĐẠN! PHÂN TÍCH CHIẾN THUẬT:';
+        kellyAvatarSlot.innerHTML = SVG_LIB.kelly.damage;
+      }
+
+      commsExplanation.textContent = q.explanation;
+      tacticalComms.classList.remove('hidden');
+      updateHUD();
+
+      // Next Question Button
+      btnFireAction.textContent = (currentIdx === TACTICAL_QUESTIONS.length - 1) ? 'TIẾN VÀO KHU VỰC BOOYAH! 🏆' : 'MỤC TIÊU KẾ TIẾP ➔';
+      btnFireAction.className = 'clip-tactical w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-ff-cyan hover:brightness-110 active:scale-95 text-white font-tactical font-black text-xl tracking-wider shadow-neon-cyan transition';
+    }
+
+    function advanceToNextTarget() {
+      currentIdx++;
+      if (currentIdx < TACTICAL_QUESTIONS.length) {
+        loadTacticalQuestion(currentIdx);
+      } else {
+        concludeMission();
+      }
+    }
+
+    function concludeMission() {
+      audio.playBooyah();
+      triggerBooyahFireworks();
+
+      screenGame.classList.remove('flex');
+      screenGame.classList.add('hidden');
+      screenBooyah.classList.remove('hidden');
+
+      const correctKills = userTacticalLog.filter(x => x.isCorrect).length;
+      const totalQ = TACTICAL_QUESTIONS.length;
+      const finalRank = getRankName(score);
+
+      document.getElementById('final-exp').textContent = score;
+      document.getElementById('final-kills').textContent = `${correctKills} / ${totalQ}`;
+      document.getElementById('final-combo').textContent = `x${maxCombo}`;
+      document.getElementById('final-rank-name').textContent = finalRank;
+
+      const quoteEl = document.getElementById('debrief-quote');
+      if (correctKills >= 18) {
+        quoteEl.innerHTML = `Đại úy Kelly: <span class="text-ff-yellow font-bold">"Tuyệt đỉnh xạ thủ! Con nắm vững 100% ngữ pháp và từ vựng Unit 1. Bạn chính là MVP huyền thoại của trận đấu!"</span>`;
+      } else if (correctKills >= 14) {
+        quoteEl.innerHTML = `Đại úy Kelly: <span class="text-ff-cyan font-bold">"Rất xuất sắc! Phản xạ tốt và kỹ năng chiến thuật đáng nể. Xem lại một số câu nhỏ để hoàn hảo nhé!"</span>`;
+      } else {
+        quoteEl.innerHTML = `Đại úy Kelly: <span class="text-ff-orange font-bold">"Chiến binh đã rất nỗ lực sống sót đến vòng bo cuối cùng! Hãy trang bị lại kiến thức Unit 1 và tái đấu để leo Rank Thách Đấu nhé!"</span>`;
+      }
+
+      // Populate 20 Review items
+      const debriefWrap = document.getElementById('debrief-items-wrap');
+      debriefWrap.innerHTML = '';
+
+      userTacticalLog.forEach((log, i) => {
+        const item = document.createElement('div');
+        item.className = `p-3 rounded-lg border text-xs sm:text-sm ${log.isCorrect ? 'bg-emerald-950/40 border-emerald-600' : 'bg-rose-950/40 border-rose-600'}`;
+        item.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-tactical font-black text-slate-300">#${String(i + 1).padStart(2, '0')} [${log.category}]</span>
+            <span class="font-tactical font-black ${log.isCorrect ? 'text-emerald-400' : 'text-rose-400'}">
+              ${log.isCorrect ? '✓ TIÊU DIỆT (+EXP)' : '✗ BỊ THẤT BẠI (-HP)'}
+            </span>
+          </div>
+          <p class="text-white font-bold mb-1">${log.question}</p>
+          <p class="text-slate-400">💡 <em>${log.explanation}</em></p>
+        `;
+        debriefWrap.appendChild(item);
+      });
+    }
+  </script>
+</body>
+</html>
